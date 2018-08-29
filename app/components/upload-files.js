@@ -14,14 +14,11 @@ export default Component.extend({
         event.preventDefault();
         var fd = new FormData();
         let file = event.dataTransfer.files[0];
-        console.log(file);
         fd.append('img', file);
-        console.log(fd);
         this.makeRequest(fd);
     },
 
     makeRequest(fd) {
-        console.log('sended to server...');
         $.ajax({
             url: 'http://localhost:3000/upload/',
             type: 'POST',
