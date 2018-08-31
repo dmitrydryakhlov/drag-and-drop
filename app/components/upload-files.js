@@ -1,9 +1,14 @@
 import Component from '@ember/component';
-import $ from 'jquery'
 
 export default Component.extend({
   tagName: 'div',
   classNames: ['uploader', 'dropzone'],
+
+  actions: {
+    cancel() {
+      this.xhr.abort()
+    }
+  },
 
   dragOver(event) {
     event.preventDefault()
@@ -11,58 +16,50 @@ export default Component.extend({
 
   drop(theEvent) {
     theEvent.preventDefault();
-    var fd = new FormData();
+    let myFormData = new FormData();
     let file = theEvent.dataTransfer.files[0];
-    fd.append('img', file);
-    this.makeRequest(fd);
+    myFormData.append('img', file);
+    this.makeRequestXHR(myFormData);
+    //this.makeRequestAjax(myFormData);
   },
 
-  makeRequest(fd) {
-    $.ajax({
-      url: 'http://localhost:3000/upload/',
-      type: 'POST',
-      data: fd,
-      contentType: false,
-      processData: false,
-      encType: "multipart/form-data",
-      xhr: () => {
-        var xhr = $.ajaxSettings.xhr();
-        if (xhr.upload) {
-          xhr.upload.addEventListener('progress', (event) => {
-            var percent = 0;
-            var position = event.loaded || event.position;
-            var total = event.total;
-            if (event.lengthComputable) {
-              percent = Math.ceil(position / total * 100);
-            }
-            let progressbars = this.element.getElementsByClassName(`progress-bar`);
-            for (let i = 0; i < progressbars.length; i++) {
-              progressbars[i].style.width = `${percent}%`;
-            }
-            let status = this.element.getElementsByClassName(`status`);
-            for (let i = 0; i < status.length; i++) {
-              status[i].innerText = `${percent}%`;
-            }
-          }, true);
-        }
-        return xhr;
-      },
-      success: function (response) {
-        console.log(response);
-      },
-      error: function (errorMessage) {
-        console.log(errorMessage);
+  makeRequestXHR(theFormData) {
+    this.xhr = new XMLHttpRequest();
+    this.xhr.mode = 'no-cors'
+    this.xhr.upload.addEventListener('progress', (event) => {
+      var percent = 0;
+      var position = event.loaded || event.position;
+      var total = event.total;
+      if (event.lengthComputable) {
+        percent = Math.ceil(position / total * 100);
       }
-    }).done(() => { //
-
       let progressbars = this.element.getElementsByClassName(`progress-bar`);
       for (let i = 0; i < progressbars.length; i++) {
-        progressbars[i].style.width = '0%';
+        progressbars[i].style.width = `${percent}%`;
       }
       let status = this.element.getElementsByClassName(`status`);
       for (let i = 0; i < status.length; i++) {
-        status[i].innerText = 'File uploaded';
+        status[i].innerText = `${percent}%`;
       }
-    });
+    }, true);
+    this.xhr.onload = () => {
+      this.returnDefault('uploaded')
+    }
+    this.xhr.onabort = () => {
+      this.returnDefault('aborted');
+    }
+    this.xhr.open("POST", 'http://localhost:3000/upload/', true);
+    this.xhr.send(theFormData);
+  },
+
+  returnDefault(theMessage) {
+    let progressbars = this.element.getElementsByClassName(`progress-bar`);
+    for (let i = 0; i < progressbars.length; i++) {
+      progressbars[i].style.width = '0%';
+    }
+    let status = this.element.getElementsByClassName(`status`);
+    for (let i = 0; i < status.length; i++) {
+      status[i].innerText = `${theMessage}`;
+    }
   }
 })
