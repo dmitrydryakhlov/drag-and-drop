@@ -26,7 +26,6 @@ export default Component.extend({
   },
 
   makeRequest(fd) {
-    let self = this;
     $.ajax({
       url: 'http://localhost:3000/upload/',
       type: 'POST',
@@ -47,9 +46,6 @@ export default Component.extend({
             //this.$(" .progress-bar").css("width", + percent + "%");
             //this.$(" .status").text(percent + "%");
             //getElementsByClassName();
-            for(let item in this){
-              console.log(item, this[item]);
-            }
             var progressbars = self.querySelectorAll("progress-bar");
             for (let i = 0; i < progressbars.length; i++) {
               //console.log(progressbars)
