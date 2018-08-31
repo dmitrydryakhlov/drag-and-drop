@@ -16,11 +16,10 @@ export default Component.extend({
 
   drop(theEvent) {
     theEvent.preventDefault();
-    let myFormData = new FormData();
-    let file = theEvent.dataTransfer.files[0];
-    myFormData.append('img', file);
-    this.makeRequestXHR(myFormData);
-    //this.makeRequestAjax(myFormData);
+    const aFormData = new FormData();
+    const file = theEvent.dataTransfer.files[0];
+    aFormData.append('img', file);
+    this.makeRequestXHR(aFormData);
   },
 
   makeRequestXHR(theFormData) {
@@ -33,33 +32,32 @@ export default Component.extend({
       if (event.lengthComputable) {
         percent = Math.ceil(position / total * 100);
       }
-      let progressbars = this.element.getElementsByClassName(`progress-bar`);
+      const progressbars = this.element.getElementsByClassName(`progress-bar`);
       for (let i = 0; i < progressbars.length; i++) {
         progressbars[i].style.width = `${percent}%`;
       }
-      let status = this.element.getElementsByClassName(`status`);
+      const status = this.element.getElementsByClassName(`status`);
       for (let i = 0; i < status.length; i++) {
         status[i].innerText = `${percent}%`;
       }
     }, true);
-    this.xhr.onload = () => {
-      this.returnDefault('uploaded')
-    }
-    this.xhr.onabort = () => {
-      this.returnDefault('aborted');
-    }
+    this.xhr.onload = () => this.returnDefault('uploaded');
+    this.xhr.onabort = () => this.returnDefault('aborted');
     this.xhr.open("POST", 'http://localhost:3000/upload/', true);
     this.xhr.send(theFormData);
   },
 
   returnDefault(theMessage) {
-    let progressbars = this.element.getElementsByClassName(`progress-bar`);
-    for (let i = 0; i < progressbars.length; i++) {
-      progressbars[i].style.width = '0%';
+    const aProgressbars = this.element.getElementsByClassName(`progress-bar`);
+    for (let i = 0; i < aProgressbars.length; i++) {
+      aProgressbars[i].style.width = '0%';
     }
-    let status = this.element.getElementsByClassName(`status`);
-    for (let i = 0; i < status.length; i++) {
-      status[i].innerText = `${theMessage}`;
+    const aStatus = this.element.getElementsByClassName(`status`);
+    for (let i = 0; i < aStatus.length; i++) {
+      aStatus[i].innerText = `${theMessage}`;
+      setTimeout(() => {
+        aStatus[i].innerText = `drag and drop here`;
+      }, 2000);
     }
   }
 })
