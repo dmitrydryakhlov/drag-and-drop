@@ -2,27 +2,19 @@ import Component from '@ember/component';
 import $ from 'jquery'
 
 export default Component.extend({
-  init() {
-    this._super(arguments);
-    this.id = ~~(Math.random() * 100)
-  },
   tagName: 'div',
   classNames: ['uploader', 'dropzone'],
+
   dragOver(event) {
     event.preventDefault()
   },
 
-  /**
-   * 
-   * @param {Object} theEvent 
-   */
   drop(theEvent) {
     theEvent.preventDefault();
     var fd = new FormData();
     let file = theEvent.dataTransfer.files[0];
     fd.append('img', file);
     this.makeRequest(fd);
-    console.log(this.id);
   },
 
   makeRequest(fd) {
@@ -30,7 +22,7 @@ export default Component.extend({
       url: 'http://localhost:3000/upload/',
       type: 'POST',
       data: fd,
-      contentType: false,//'multipart/form-data',
+      contentType: false,
       processData: false,
       encType: "multipart/form-data",
       xhr: () => {
@@ -43,40 +35,34 @@ export default Component.extend({
             if (event.lengthComputable) {
               percent = Math.ceil(position / total * 100);
             }
-            //this.$(" .progress-bar").css("width", + percent + "%");
-            //this.$(" .status").text(percent + "%");
-            //getElementsByClassName();
-            var progressbars = self.querySelectorAll("progress-bar");
+            let progressbars = this.element.getElementsByClassName(`progress-bar`);
             for (let i = 0; i < progressbars.length; i++) {
-              //console.log(progressbars)
               progressbars[i].style.width = `${percent}%`;
             }
-            var status = document.querySelectorAll(" .status");
+            let status = this.element.getElementsByClassName(`status`);
             for (let i = 0; i < status.length; i++) {
-              status[i].innerHTML = `${percent}%`;
+              status[i].innerText = `${percent}%`;
             }
           }, true);
         }
         return xhr;
       },
       success: function (response) {
-        console.log("Data Uploaded: " + response);
+        console.log(response);
       },
       error: function (errorMessage) {
         console.log(errorMessage);
       }
-    }).done((res) => { //
-      //$(" .status").text(0 + "%");
-      //$(" .progress-bar").css("width", + 0 + "%");
-      var progressbars = document.querySelectorAll(" .progress-bar");
+    }).done(() => { //
+
+      let progressbars = this.element.getElementsByClassName(`progress-bar`);
       for (let i = 0; i < progressbars.length; i++) {
         progressbars[i].style.width = '0%';
       }
-      var status = document.querySelectorAll(" .status");
+      let status = this.element.getElementsByClassName(`status`);
       for (let i = 0; i < status.length; i++) {
-        status[i].innerHTML = '0%';
+        status[i].innerText = 'File uploaded';
       }
-
     });
   }
 })
